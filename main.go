@@ -101,46 +101,15 @@ const (
 )
 
 func handlerPost(w http.ResponseWriter, r *http.Request) {
-	// Parse from body of request to get a json object.
-	//fmt.Println("Received one post request")
-	//decoder := json.NewDecoder(r.Body)
-	//var p Post // Post p = new Post();
-	//if err := decoder.Decode(&p); err != nil {
-	//	panic(err)
-	//	return
-	//}
-	//id := uuid.New()
-	//// Save to ES.
-	//saveToES(&p, id)
-	//
-	//fmt.Printf("Post is saved to Index: %s\n", p.Message)
-	//
-	//ctx := context.Background()
-	//// you must update project name here
-	//bt_client, err := bigtable.NewClient(ctx, PROJECT_ID, BT_INSTANCE)
-	//if err != nil {
-	//	panic(err)
-	//	return
-	//}
-	//
-	//tbl := bt_client.Open("post")
-	//mut := bigtable.NewMutation()
-	//t := bigtable.Now()
-	//
-	//mut.Set("post", "user", t, []byte(p.User))
-	//mut.Set("post", "message", t, []byte(p.Message))
-	//mut.Set("location", "lat", t, []byte(strconv.FormatFloat(p.Location.Lat, 'f', -1, 64)))
-	//mut.Set("location", "lon", t, []byte(strconv.FormatFloat(p.Location.Lon, 'f', -1, 64)))
-	//
-	//err = tbl.Apply(ctx, id, mut)
-	//if err != nil {
-	//	panic(err)
-	//	return
-	//}
-	// fmt.Printf("Post is saved to BigTable: %s\n", p.Message)
+
+
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	username := claims.(jwt.MapClaims)["username"]
 
 
 	// 32 << 20 is the maxMemory param for ParseMultipartForm, equals to 32MB (1MB = 1024 * 1024 bytes = 2^20 bytes)
@@ -153,7 +122,7 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	lat, _ := strconv.ParseFloat(r.FormValue("lat"), 64)
 	lon, _ := strconv.ParseFloat(r.FormValue("lon"), 64)
 	p := &Post{
-		User:    "1111",
+		User:    username.(string),
 		Message: r.FormValue("message"),
 		Location: Location{
 			Lat: lat,
